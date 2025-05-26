@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Date Time Checker</title>
+</head>
+<body>
+    <h1>Test Page</h1>
+    <div id="datetime">Initial test content</div>
+    <div id="test-status">Test not run yet.</div>
+
+    <script src="script.js"></script>
+    <script>
+        // Simple test logic
+        const statusDiv = document.getElementById('test-status');
+        const dateTimeDiv = document.getElementById('datetime');
+        const initialContent = dateTimeDiv.textContent;
+
+        // Run the function that should update the div
+        // Note: script.js already calls updateDateTime() and sets an interval.
+        // For a more controlled test, you might want to prevent auto-execution in script.js
+        // and call it manually here. For now, we'll rely on its existing behavior.
+
+        // Give it a moment for the initial updateDateTime() in script.js to run
+        setTimeout(() => {
+            const newContent = dateTimeDiv.textContent;
+            if (newContent !== initialContent && newContent !== "Loading...") {
+                statusDiv.textContent = "Test PASSED: datetime div was updated.";
+                statusDiv.style.color = "green";
+                console.log("Test PASSED");
+            } else {
+                statusDiv.textContent = "Test FAILED: datetime div was not updated as expected. Current content: " + newContent;
+                statusDiv.style.color = "red";
+                console.error("Test FAILED. Content: ", newContent);
+            }
+        }, 500); // Wait 0.5 seconds for the first update
+    </script>
+</body>
+</html>
