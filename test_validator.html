@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Date Validator Logic</title>
+    <link rel="stylesheet" href="style.css"> <!-- Optional: for consistent styling -->
+    <style>
+        body { padding: 20px; }
+        .test-case { margin-bottom: 10px; border: 1px solid #eee; padding: 10px; }
+        .pass { color: green; }
+        .fail { color: red; }
+        /* Minimal styles for inputs if main CSS not loaded or overridden */
+        input[type="number"] { width: 60px; margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Date Validator - Test Page</h1>
+
+    <!-- Manual Test Area -->
+    <h2>Manual Test</h2>
+    <div>
+        <label for="day">Day:</label>
+        <input type="number" id="day" name="day" placeholder="DD">
+        <label for="month">Month:</label>
+        <input type="number" id="month" name="month" placeholder="MM">
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" placeholder="YYYY">
+    </div>
+    <button id="validateButton">Check Date Manually</button>
+    <div id="result" style="margin-top:10px; font-weight:bold;"></div>
+    <hr>
+
+    <h2>Automated Test Cases</h2>
+    <div id="test-results"></div>
+
+    <script src="script.js"></script>
+    <script>
+        // Mock the DOM elements for script.js if they are not the primary ones.
+        // For this test, we'll use the actual elements from the "Manual Test" section
+        // and also log results to the "Automated Test Cases" section.
+
+        const testCases = [
+            // Valid dates
+            { day: 1, month: 1, year: 2023, expected: 'Date is valid!', description: 'Valid date (Jan 1, 2023)' },
+            { day: 29, month: 2, year: 2024, expected: 'Date is valid!', description: 'Valid leap day (Feb 29, 2024)' },
+            { day: 31, month: 12, year: 2023, expected: 'Date is valid!', description: 'Valid date (Dec 31, 2023)' },
+            // Invalid days for month
+            { day: 31, month: 4, year: 2023, expected: 'Invalid day for the selected month and year.', description: 'Invalid day for April (Apr 31, 2023)' },
+            { day: 29, month: 2, year: 2023, expected: 'Invalid day for the selected month and year.', description: 'Invalid leap day in non-leap year (Feb 29, 2023)' },
+            // Invalid months
+            { day: 1, month: 0, year: 2023, expected: 'Month must be between 1 and 12.', description: 'Invalid month (0)' },
+            { day: 1, month: 13, year: 2023, expected: 'Month must be between 1 and 12.', description: 'Invalid month (13)' },
+            // Invalid years
+            { day: 1, month: 1, year: 999, expected: 'Please enter a 4-digit year.', description: 'Invalid year (999)' },
+            { day: 1, month: 1, year: 10000, expected: 'Please enter a 4-digit year.', description: 'Invalid year (10000)' },
+            // Non-numeric (though HTML input type=number helps, function should handle NaN)
+            { day: 'a', month: 1, year: 2023, expected: 'Please enter valid numbers for day, month, and year.', description: 'Non-numeric day' },
+        ];
+
+        const resultsDiv = document.getElementById('test-results');
+        const manualDayInput = document.getElementById('day');
+        const manualMonthInput = document.getElementById('month');
+        const manualYearInput = document.getElementById('year');
+        const manualResultDiv = document.getElementById('result');
+        
+        // The original script.js attaches event listener to 'validateButton'.
+        // We rename the manual button to avoid conflict if script.js is simply included.
+        const manualValidateButton = document.getElementById('validateButton');
+        manualValidateButton.id = 'manualValidateButton'; // Rename to avoid script.js auto-attaching
+         manualValidateButton.addEventListener('click', () => {
+            // Temporarily assign to global inputs for validateDate() from script.js
+            // These ids 'day', 'month', 'year', 'result' are what script.js expects
+            document.getElementById('day').value = manualDayInput.value;
+            document.getElementById('month').value = manualMonthInput.value;
+            document.getElementById('year').value = manualYearInput.value;
+            validateDate(); // This will use the #result div from the main script
+            // Copy result to our manual result div for clarity
+            manualResultDiv.textContent = document.getElementById('result').textContent;
+            manualResultDiv.style.color = document.getElementById('result').style.color;
+        });
+
+
+        testCases.forEach(tc => {
+            // Set input values for the function to use
+            // These ids 'day', 'month', 'year' are what script.js expects
+            document.getElementById('day').value = tc.day;
+            document.getElementById('month').value = tc.month;
+            document.getElementById('year').value = tc.year;
+
+            // Call the validation function
+            validateDate(); // This function directly updates 'resultDiv' from script.js context
+
+            const actual = document.getElementById('result').textContent; // Get result from the main resultDiv
+            const pass = actual === tc.expected;
+
+            const testCaseResultDiv = document.createElement('div');
+            testCaseResultDiv.classList.add('test-case');
+            testCaseResultDiv.innerHTML = \`
+                <strong>\${tc.description}</strong><br>
+                Input: Day=\${tc.day}, Month=\${tc.month}, Year=\${tc.year}<br>
+                Expected: "\${tc.expected}"<br>
+                Actual: "\${actual}"<br>
+                Result: <span class="\${pass ? 'pass' : 'fail'}">\${pass ? 'PASSED' : 'FAILED'}</span>
+            \`;
+            resultsDiv.appendChild(testCaseResultDiv);
+        });
+        
+        // Clear inputs after running tests to leave a clean state for manual testing
+        document.getElementById('day').value = '';
+        document.getElementById('month').value = '';
+        document.getElementById('year').value = '';
+        document.getElementById('result').textContent = ''; // Clear the main result div
+
+    </script>
+</body>
+</html>
