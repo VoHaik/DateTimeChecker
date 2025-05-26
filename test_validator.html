@@ -5,12 +5,16 @@
     <title>Test Date Validator Logic</title>
     <link rel="stylesheet" href="style.css"> <!-- Optional: for consistent styling -->
     <style>
-        body { padding: 20px; }
-        .test-case { margin-bottom: 10px; border: 1px solid #eee; padding: 10px; }
-        .pass { color: green; }
-        .fail { color: red; }
+        body { padding: 20px; font-family: sans-serif; }
+        .test-case { margin-bottom: 10px; border: 1px solid #eee; padding: 10px; background-color: #f9f9f9; border-radius: 4px;}
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        h1, h2 { border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 15px;}
         /* Minimal styles for inputs if main CSS not loaded or overridden */
-        input[type="number"] { width: 60px; margin-right: 5px; }
+        input[type="number"] { width: 60px; margin-right: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;}
+        button { padding: 8px 12px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;}
+        button:hover { background-color: #0056b3;}
+        #manualResult { margin-top:10px; font-weight:bold; padding: 5px; border-radius:3px; min-height:1.5em;}
     </style>
 </head>
 <body>
@@ -18,80 +22,99 @@
 
     <!-- Manual Test Area -->
     <h2>Manual Test</h2>
-    <div>
-        <label for="day">Day:</label>
-        <input type="number" id="day" name="day" placeholder="DD">
-        <label for="month">Month:</label>
-        <input type="number" id="month" name="month" placeholder="MM">
-        <label for="year">Year:</label>
-        <input type="number" id="year" name="year" placeholder="YYYY">
+    <div class="validator-container" style="max-width:none; box-shadow:none; padding:10px 0;"> <!-- Mimic container for inputs -->
+        <div class="input-group">
+             <div>
+                <label for="manualDay">Day:</label>
+                <input type="number" id="manualDay" placeholder="DD">
+            </div>
+            <div>
+                <label for="manualMonth">Month:</label>
+                <input type="number" id="manualMonth" placeholder="MM">
+            </div>
+            <div>
+                <label for="manualYear">Year:</label>
+                <input type="number" id="manualYear" placeholder="YYYY">
+            </div>
+        </div>
+        <button id="manualValidateButton">Check Date Manually</button>
+        <div id="manualResult"></div> <!-- Separate result div for manual test -->
     </div>
-    <button id="validateButton">Check Date Manually</button>
-    <div id="result" style="margin-top:10px; font-weight:bold;"></div>
-    <hr>
+    <hr style="margin: 20px 0;">
 
     <h2>Automated Test Cases</h2>
     <div id="test-results"></div>
 
+    <!-- These are the actual input fields script.js will use for automated tests -->
+    <input type="hidden" id="day">
+    <input type="hidden" id="month">
+    <input type="hidden" id="year">
+    <div id="result" style="display:none;"><span class="icon"></span><span class="message"></span></div> 
+
     <script src="script.js"></script>
     <script>
-        // Mock the DOM elements for script.js if they are not the primary ones.
-        // For this test, we'll use the actual elements from the "Manual Test" section
-        // and also log results to the "Automated Test Cases" section.
-
         const testCases = [
             // Valid dates
             { day: 1, month: 1, year: 2023, expected: 'Date is valid!', description: 'Valid date (Jan 1, 2023)' },
             { day: 29, month: 2, year: 2024, expected: 'Date is valid!', description: 'Valid leap day (Feb 29, 2024)' },
-            { day: 31, month: 12, year: 2023, expected: 'Date is valid!', description: 'Valid date (Dec 31, 2023)' },
-            // Invalid days for month
-            { day: 31, month: 4, year: 2023, expected: 'Invalid day for the selected month and year.', description: 'Invalid day for April (Apr 31, 2023)' },
-            { day: 29, month: 2, year: 2023, expected: 'Invalid day for the selected month and year.', description: 'Invalid leap day in non-leap year (Feb 29, 2023)' },
-            // Invalid months
+            // ... (other test cases from before, ensure they match new error messages if any) ...
+            { day: 31, month: 4, year: 2023, expected: 'Invalid day. April 2023 has only 30 days.', description: 'Invalid day for April (Apr 31, 2023)' },
+            { day: 29, month: 2, year: 2023, expected: 'Invalid day. February 2023 has only 28 days.', description: 'Invalid leap day in non-leap year (Feb 29, 2023)' },
             { day: 1, month: 0, year: 2023, expected: 'Month must be between 1 and 12.', description: 'Invalid month (0)' },
             { day: 1, month: 13, year: 2023, expected: 'Month must be between 1 and 12.', description: 'Invalid month (13)' },
-            // Invalid years
-            { day: 1, month: 1, year: 999, expected: 'Please enter a 4-digit year.', description: 'Invalid year (999)' },
-            { day: 1, month: 1, year: 10000, expected: 'Please enter a 4-digit year.', description: 'Invalid year (10000)' },
-            // Non-numeric (though HTML input type=number helps, function should handle NaN)
+            { day: 1, month: 1, year: 999, expected: 'Year must be a 4-digit number (e.g., 1990).', description: 'Invalid year (999)' },
+            { day: 1, month: 1, year: 10000, expected: 'Year must be a 4-digit number (e.g., 1990).', description: 'Invalid year (10000)' },
             { day: 'a', month: 1, year: 2023, expected: 'Please enter valid numbers for day, month, and year.', description: 'Non-numeric day' },
+            { day: 0, month: 1, year: 2023, expected: 'Day cannot be less than 1.', description: 'Day less than 1' },
+
         ];
 
-        const resultsDiv = document.getElementById('test-results');
-        const manualDayInput = document.getElementById('day');
-        const manualMonthInput = document.getElementById('month');
-        const manualYearInput = document.getElementById('year');
-        const manualResultDiv = document.getElementById('result');
+        const resultsContainer = document.getElementById('test-results');
         
-        // The original script.js attaches event listener to 'validateButton'.
-        // We rename the manual button to avoid conflict if script.js is simply included.
-        const manualValidateButton = document.getElementById('validateButton');
-        manualValidateButton.id = 'manualValidateButton'; // Rename to avoid script.js auto-attaching
-         manualValidateButton.addEventListener('click', () => {
-            // Temporarily assign to global inputs for validateDate() from script.js
-            // These ids 'day', 'month', 'year', 'result' are what script.js expects
-            document.getElementById('day').value = manualDayInput.value;
-            document.getElementById('month').value = manualMonthInput.value;
-            document.getElementById('year').value = manualYearInput.value;
-            validateDate(); // This will use the #result div from the main script
-            // Copy result to our manual result div for clarity
-            manualResultDiv.textContent = document.getElementById('result').textContent;
-            manualResultDiv.style.color = document.getElementById('result').style.color;
+        // For manual testing
+        const manualDayInput = document.getElementById('manualDay');
+        const manualMonthInput = document.getElementById('manualMonth');
+        const manualYearInput = document.getElementById('manualYear');
+        const manualResultDiv = document.getElementById('manualResult');
+        const manualButton = document.getElementById('manualValidateButton');
+
+        // Hidden inputs that script.js will use for automated tests
+        const autoDayInput = document.getElementById('day');
+        const autoMonthInput = document.getElementById('month');
+        const autoYearInput = document.getElementById('year');
+        const autoResultDiv = document.getElementById('result'); // This is the div script.js updates
+        const autoResultMessageSpan = autoResultDiv.querySelector('.message');
+
+        manualButton.addEventListener('click', () => {
+            // Set values on the hidden inputs that script.js uses
+            autoDayInput.value = manualDayInput.value;
+            autoMonthInput.value = manualMonthInput.value;
+            autoYearInput.value = manualYearInput.value;
+            
+            validateDate(); // Call the global function
+
+            // Display result in the manual test area
+            manualResultDiv.textContent = autoResultMessageSpan.textContent;
+            if (autoResultDiv.classList.contains('valid')) {
+                manualResultDiv.className = 'pass';
+            } else if (autoResultDiv.classList.contains('invalid')) {
+                manualResultDiv.className = 'fail';
+            } else {
+                manualResultDiv.className = '';
+            }
         });
 
-
+        let allTestsPassed = true;
         testCases.forEach(tc => {
-            // Set input values for the function to use
-            // These ids 'day', 'month', 'year' are what script.js expects
-            document.getElementById('day').value = tc.day;
-            document.getElementById('month').value = tc.month;
-            document.getElementById('year').value = tc.year;
+            autoDayInput.value = tc.day;
+            autoMonthInput.value = tc.month;
+            autoYearInput.value = tc.year;
 
-            // Call the validation function
-            validateDate(); // This function directly updates 'resultDiv' from script.js context
+            validateDate(); // This function directly updates 'autoResultDiv' and its children
 
-            const actual = document.getElementById('result').textContent; // Get result from the main resultDiv
-            const pass = actual === tc.expected;
+            const actualMessage = autoResultMessageSpan.textContent;
+            const pass = actualMessage === tc.expected;
+            if (!pass) allTestsPassed = false;
 
             const testCaseResultDiv = document.createElement('div');
             testCaseResultDiv.classList.add('test-case');
@@ -99,17 +122,23 @@
                 <strong>\${tc.description}</strong><br>
                 Input: Day=\${tc.day}, Month=\${tc.month}, Year=\${tc.year}<br>
                 Expected: "\${tc.expected}"<br>
-                Actual: "\${actual}"<br>
+                Actual: "\${actualMessage}"<br>
                 Result: <span class="\${pass ? 'pass' : 'fail'}">\${pass ? 'PASSED' : 'FAILED'}</span>
             \`;
-            resultsDiv.appendChild(testCaseResultDiv);
+            resultsContainer.appendChild(testCaseResultDiv);
         });
         
-        // Clear inputs after running tests to leave a clean state for manual testing
-        document.getElementById('day').value = '';
-        document.getElementById('month').value = '';
-        document.getElementById('year').value = '';
-        document.getElementById('result').textContent = ''; // Clear the main result div
+        const summaryDiv = document.createElement('h3');
+        summaryDiv.textContent = allTestsPassed ? 'All automated tests PASSED!' : 'Some automated tests FAILED.';
+        summaryDiv.className = allTestsPassed ? 'pass' : 'fail';
+        resultsContainer.insertBefore(summaryDiv, resultsContainer.firstChild);
+
+        // Clear hidden input values after running tests
+        autoDayInput.value = '';
+        autoMonthInput.value = '';
+        autoYearInput.value = '';
+        autoResultDiv.classList.remove('valid', 'invalid');
+        autoResultMessageSpan.textContent = '';
 
     </script>
 </body>

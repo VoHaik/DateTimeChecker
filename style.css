@@ -1,70 +1,239 @@
+/* Previous styles from Step 1 are assumed here. Only showing additions/modifications. */
+/* If using Font Awesome, ensure its CSS is linked in index.html */
+
 body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start; /* Align items to the start */
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Added Roboto as a preference */
+    background-color: #f0f2f5; /* Slightly different background */
+    color: #333; /* Default text color */
+    display: flex; /* ensure flex is still here */
+    flex-direction: column; /* ensure flex-direction is still here */
+    align-items: center; /* ensure align-items is still here */
+    justify-content: center; /* Center the card on the page */
     min-height: 100vh;
     margin: 0;
-    background-color: #f4f4f4;
-    padding-top: 20px; /* Add some padding at the top */
+    padding: 20px; 
+    box-sizing: border-box;
+}
+
+.validator-container {
+    background-color: #ffffff;
+    padding: 35px 45px; /* Slightly more padding */
+    border-radius: 10px; /* Soften radius */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    width: 100%; /* ensure width is still here */
+    max-width: 480px; /* Slightly wider card */
+    text-align: center; 
 }
 
 h1 {
+    color: #2c3e50; /* Darker, more professional heading color */
+    font-weight: 600; /* Bolder heading */
+    margin-bottom: 30px;
+    font-size: 1.8em; 
+}
+
+.input-group {
+    display: flex;
+    justify-content: space-between; 
+    align-items: flex-start; 
+    margin-bottom: 25px;
+    gap: 15px; 
+}
+
+.input-group > div {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start; 
+    flex: 1; 
+}
+
+.input-group label {
+    margin-bottom: 8px; 
+    font-size: 0.9em; /* Slightly smaller label */
+    color: #555e68; /* Softer label color */
+    font-weight: 500; /* Medium weight label */
+}
+
+input[type="number"] {
+    padding: 14px; /* Increased padding */
+    border: 1px solid #d0d5db; /* Lighter border */
+    border-radius: 5px; /* Slightly softer radius */
+    width: 100%; 
+    box-sizing: border-box; 
+    font-size: 1em;
     color: #333;
-    margin-bottom: 20px;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-div > label {
-    margin-right: 5px;
-    margin-left: 15px;
+input[type="number"]::placeholder {
+    color: #aaa;
 }
 
-div > input[type="number"] {
-    padding: 8px;
-    margin-right: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 70px; /* Adjust width as needed */
+input[type="number"]:focus {
+    border-color: #007bff; /* Highlight color on focus */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Glow effect on focus */
+    outline: none;
 }
-
-/* Specific widths for better placeholder appearance */
-input#day, input#month {
-    width: 50px;
-}
-input#year {
-    width: 70px;
-}
-
 
 button#validateButton {
-    padding: 10px 20px;
-    font-size: 1em;
+    padding: 12px 25px;
+    font-size: 1.05em;
     color: white;
-    background-color: #007bff;
+    background-color: #007bff; /* Primary blue */
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
+    margin-top: 10px; 
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Added box-shadow transition */
+    width: 100%; 
+    max-width: 250px; 
+    font-weight: 500; /* Medium weight button text */
+    text-transform: uppercase; /* Uppercase button text */
+    letter-spacing: 0.5px; /* Slight letter spacing */
+    box-shadow: 0 2px 5px rgba(0,123,255,0.2);
 }
 
 button#validateButton:hover {
-    background-color: #0056b3;
+    background-color: #0069d9; /* Darker blue on hover */
+    box-shadow: 0 4px 8px rgba(0,123,255,0.3);
 }
 
 #result {
-    margin-top: 20px;
-    font-size: 1.1em;
-    padding: 10px;
-    border-radius: 4px;
-    min-height: 1.5em; /* Ensure space even when empty */
-    text-align: center;
-}
-
-/* Styles for input container div if needed, can be more specific */
-body > div:first-of-type { /* Targeting the div holding inputs */
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    font-size: 1.05em;
+    min-height: 2em; /* Keep min-height */
+    line-height: 1.5;
+    border-radius: 5px; /* Ensure border-radius is here if backgrounds are applied */
+    padding: 0; /* Remove padding if applying to .valid/.invalid */
+    
+    /* Transition properties */
+    opacity: 0; /* Start hidden */
+    transform: translateY(10px); /* Start slightly lower */
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out, background-color 0.3s ease-out, border-color 0.3s ease-out;
+    /* Note: height/padding transitions can be tricky if content changes size. Opacity/transform are safer. */
+}
+
+#result .icon {
+    margin-right: 10px;
+    font-size: 1.4em; /* Icon size */
+}
+
+/* Styling for valid/invalid states - using CSS content for basic icons for now */
+/* For more complex icons (like Font Awesome), you'd use their classes e.g. <i class="fas fa-check-circle"></i> */
+#result.valid .icon::before {
+    content: '✔'; /* Simple checkmark */
+    color: #28a745; /* Green for valid */
+}
+
+#result.invalid .icon::before {
+    content: '✖'; /* Simple cross */
+    color: #dc3545; /* Red for invalid */
+}
+
+#result.valid .message {
+    color: #28a745;
+}
+
+#result.invalid .message {
+    color: #dc3545;
+}
+
+/* Optional: Add a border or background to the result message */
+#result.valid, #result.invalid {
+    opacity: 1; /* Fade in */
+    transform: translateY(0); /* Move to original position */
+    padding: 10px 15px; /* Add padding only when visible to avoid layout jump */
+}
+
+#result.valid {
+    background-color: #e9f7ef; /* Light green background */
+    border: 1px solid #d1e7dd;
+    /* color for .message is already set */
+}
+
+#result.invalid {
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #f5c6cb;
+    /* color for .message is already set */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) { /* For tablets and larger phones */
+    .validator-container {
+        padding: 30px 35px; /* Slightly reduce padding */
+        margin: 20px; /* Add some margin if card touches screen edges */
+    }
+
+    h1 {
+        font-size: 1.6em; /* Adjust heading size */
+    }
+
+    .input-group {
+        gap: 10px; /* Reduce gap between inputs */
+    }
+
+    input[type="number"] {
+        padding: 12px; /* Adjust input padding */
+        font-size: 0.95em;
+    }
+
+    button#validateButton {
+        padding: 11px 20px;
+        font-size: 1em;
+    }
+
+    #result {
+        font-size: 1em; /* This base font-size for #result will be inherited by .message and .icon */
+    }
+}
+
+@media (max-width: 480px) { /* For smaller mobile phones */
+    body {
+        padding: 10px; /* Reduce body padding */
+    }
+
+    .validator-container {
+        padding: 25px 20px; /* Further reduce padding for the card */
+        margin: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08); /* Lighter shadow */
+    }
+
+    h1 {
+        font-size: 1.4em; /* Smaller heading */
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        flex-direction: column; /* Stack input groups vertically */
+        gap: 15px; /* Gap between stacked input groups */
+        align-items: stretch; /* Stretch items to fill width */
+    }
+
+    .input-group > div {
+        width: 100%; /* Ensure each input group takes full width when stacked */
+    }
+
+    input[type="number"] {
+        width: 100%; /* Inputs take full width */
+        font-size: 1em; /* Ensure readability */
+    }
+
+    button#validateButton {
+        padding: 12px 15px; /* Adjust button padding */
+        font-size: 1em;
+        /* max-width: none; */ /* Allow button to be full width if desired, or keep max-width from desktop */
+    }
+
+    #result {
+        font-size: 0.95em; /* This base font-size for #result will be inherited */
+        margin-top: 20px;
+    }
+
+    #result .icon {
+        font-size: 1.2em; /* Adjust icon size relative to #result font-size */
+        margin-right: 8px;
+    }
 }
